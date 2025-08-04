@@ -1,37 +1,28 @@
 platform :ios, '13.0'
-
 use_frameworks!
 use_modular_headers!
 
+# Disable CocoaPods analytics
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
 target 'Runner' do
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  # Flutter engine
+  pod 'Flutter', :path => 'Flutter'
+
+  # Flutter plugins (add all you use here)
+  pod 'cloud_firestore', :path => '.symlinks/plugins/cloud_firestore/ios'
+  pod 'firebase_core', :path => '.symlinks/plugins/firebase_core/ios'
+  pod 'firebase_auth', :path => '.symlinks/plugins/firebase_auth/ios'
+  pod 'firebase_messaging', :path => '.symlinks/plugins/firebase_messaging/ios'
+  pod 'google_maps_flutter_ios', :path => '.symlinks/plugins/google_maps_flutter_ios/ios'
+  pod 'geolocator_apple', :path => '.symlinks/plugins/geolocator_apple/ios'
+  pod 'geocoding_ios', :path => '.symlinks/plugins/geocoding_ios/ios'
+  pod 'onesignal_flutter', :path => '.symlinks/plugins/onesignal_flutter/ios'
+  # أضف أي Plugin آخر مستخدم في مشروعك بنفس الطريقة لو ناقص
+
 end
 
-# Define flutter_install_all_ios_pods
-def flutter_install_all_ios_pods(flutter_application_path)
-  install_flutter_engine_pod
-  install_flutter_plugin_pods(flutter_application_path)
-end
-
-# Include Flutter dependencies directly (manual version)
-def install_flutter_engine_pod
-  pod 'Flutter', :path => File.join(__dir__, 'Flutter')
-end
-
-def install_flutter_plugin_pods(flutter_application_path)
-  plugin_pods = [
-    ['cloud_firestore', File.join(flutter_application_path, '.symlinks/plugins/cloud_firestore/ios')],
-    ['firebase_core', File.join(flutter_application_path, '.symlinks/plugins/firebase_core/ios')],
-    ['firebase_auth', File.join(flutter_application_path, '.symlinks/plugins/firebase_auth/ios')],
-    ['firebase_messaging', File.join(flutter_application_path, '.symlinks/plugins/firebase_messaging/ios')],
-    # أضف باقي البلجنات اللي بتستخدمها بنفس الطريقة لو فيه
-  ]
-
-  plugin_pods.each do |name, path|
-    pod name, :path => path
-  end
-end
-
+# Set minimum iOS target for all Pods after installation
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
