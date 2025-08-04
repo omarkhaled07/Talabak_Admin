@@ -1,31 +1,41 @@
-# Set iOS platform to 13.0 to support the latest Firebase plugins
 platform :ios, '13.0'
-
-# CocoaPods analytics can slow down pod install
-ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 use_frameworks!
 use_modular_headers!
 
-# Flutter Pod Helper
-flutter_application_path = '../'
-load File.join(flutter_application_path, '.flutter-plugins-dependencies')
-
 target 'Runner' do
-  use_frameworks!
-  use_modular_headers!
-
-  # Flutter integration
-  flutter_application_path = '../'
-  eval(File.read(File.join(flutter_application_path, 'Flutter', 'podhelper.rb')), binding)
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-# Workaround for Xcode 14 / iOS 16 bitcode removal
+# Define flutter_install_all_ios_pods
+def flutter_install_all_ios_pods(flutter_application_path)
+  install_flutter_engine_pod
+  install_flutter_plugin_pods(flutter_application_path)
+end
+
+# Include Flutter dependencies directly (manual version)
+def install_flutter_engine_pod
+  pod 'Flutter', :path => File.join(__dir__, 'Flutter')
+end
+
+def install_flutter_plugin_pods(flutter_application_path)
+  plugin_pods = [
+    ['cloud_firestore', File.join(flutter_application_path, '.symlinks/plugins/cloud_firestore/ios')],
+    ['firebase_core', File.join(flutter_application_path, '.symlinks/plugins/firebase_core/ios')],
+    ['firebase_auth', File.join(flutter_application_path, '.symlinks/plugins/firebase_auth/ios')],
+    ['firebase_messaging', File.join(flutter_application_path, '.symlinks/plugins/firebase_messaging/ios')],
+    # أضف باقي البلجنات اللي بتستخدمها بنفس الطريقة لو فيه
+  ]
+
+  plugin_pods.each do |name, path|
+    pod name, :path => path
+  end
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-      config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET[arch=*]'
     end
   end
 end
