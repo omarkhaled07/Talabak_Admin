@@ -1,10 +1,13 @@
-# Uncomment this line to define a global platform for your project
+# Set iOS platform to 13.0 to support the latest Firebase plugins
 platform :ios, '13.0'
+
+# CocoaPods analytics can slow down pod install
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 use_frameworks!
 use_modular_headers!
 
-# Flutter integration
+# Flutter Pod Helper
 flutter_application_path = '../'
 load File.join(flutter_application_path, '.flutter-plugins-dependencies')
 
@@ -12,6 +15,17 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  # Flutter integration
   flutter_application_path = '../'
   eval(File.read(File.join(flutter_application_path, 'Flutter', 'podhelper.rb')), binding)
+end
+
+# Workaround for Xcode 14 / iOS 16 bitcode removal
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET[arch=*]'
+    end
+  end
 end
