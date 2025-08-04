@@ -2,14 +2,7 @@ platform :ios, '13.0'
 use_frameworks!
 use_modular_headers!
 
-# Disable CocoaPods analytics
-ENV['COCOAPODS_DISABLE_STATS'] = 'true'
-
 target 'Runner' do
-  # Flutter engine
-  pod 'Flutter', :path => 'Flutter'
-
-  # Flutter plugins (add all you use here)
   pod 'cloud_firestore', :path => '.symlinks/plugins/cloud_firestore/ios'
   pod 'firebase_core', :path => '.symlinks/plugins/firebase_core/ios'
   pod 'firebase_auth', :path => '.symlinks/plugins/firebase_auth/ios'
@@ -18,11 +11,8 @@ target 'Runner' do
   pod 'geolocator_apple', :path => '.symlinks/plugins/geolocator_apple/ios'
   pod 'geocoding_ios', :path => '.symlinks/plugins/geocoding_ios/ios'
   pod 'onesignal_flutter', :path => '.symlinks/plugins/onesignal_flutter/ios'
-  # أضف أي Plugin آخر مستخدم في مشروعك بنفس الطريقة لو ناقص
-
 end
 
-# Set minimum iOS target for all Pods after installation
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
