@@ -28,27 +28,34 @@ jobs:
           sudo gem install cocoapods -v 1.15.2
           pod setup
 
-      # 4️⃣ Clean & Pub Get (Generates .symlinks)
-      - name: Prepare Project
+      # 4️⃣ Clean & Precache
+      - name: Prepare Flutter Project
         run: |
           flutter clean
           flutter pub get
           flutter precache --ios
 
-      # 5️⃣ Install iOS Pods
-      - name: Install iOS Pods
+      # 5️⃣ Generate symlinks before pod install
+      - name: Generate iOS symlinks
         run: |
           cd ios
           rm -rf Pods Podfile.lock
           pod deintegrate
+          flutter pub get
+          cd ..
+
+      # 6️⃣ Install iOS Pods
+      - name: Install iOS Pods
+        run: |
+          cd ios
           pod install --repo-update --verbose
           cd ..
 
-      # 6️⃣ Build IPA
+      # 7️⃣ Build iOS IPA
       - name: Build iOS IPA
         run: flutter build ipa --release --no-codesign
 
-      # 7️⃣ Upload IPA
+      # 8️⃣ Upload IPA
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
