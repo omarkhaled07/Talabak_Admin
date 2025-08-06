@@ -20,7 +20,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.27.1'
-          channel: 'stable'
+          channel: 'beta'
 
       # 3️⃣ تعطيل التحليلات عشان ما توقفش البيلد
       - name: Disable Flutter analytics
