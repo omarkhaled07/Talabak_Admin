@@ -1,63 +1,39 @@
-name: Build iOS IPA
+name: iOS Build
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build-ios:
+  build_ios:
     runs-on: macos-latest
 
     steps:
-      # 1️⃣ Checkout Code
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Flutter
-      - name: Set up Flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.32.8' # نفس النسخة اللي عندك
           channel: 'stable'
-          flutter-version: '3.32.8'
 
-      # 3️⃣ Install CocoaPods
-      - name: Install CocoaPods
-        run: |
-          sudo gem uninstall cocoapods -a -x --force
-          sudo gem install cocoapods -v 1.15.2
-          pod setup
+      - name: Flutter clean
+        run: flutter clean
 
-      # 4️⃣ Clean & Precache
-      - name: Prepare Flutter Project
-        run: |
-          flutter clean
-          flutter pub get
-          flutter precache --ios
-
-      # 5️⃣ Generate symlinks before pod install
-      - name: Generate iOS symlinks
+      - name: Clean and Reinstall iOS Pods
         run: |
           cd ios
           rm -rf Pods Podfile.lock
           pod deintegrate
-          flutter pub get
           cd ..
-
-      # 6️⃣ Install iOS Pods
-      - name: Install iOS Pods
-        run: |
+          flutter pub get
           cd ios
+          flutter pub get
           pod install --repo-update --verbose
           cd ..
 
-      # 7️⃣ Build iOS IPA
-      - name: Build iOS IPA
-        run: flutter build ipa --release --no-codesign
-
-      # 8️⃣ Upload IPA
-      - name: Upload IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-ipa
-          path: build/ios/ipa/*.ipa
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
