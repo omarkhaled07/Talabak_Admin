@@ -6,12 +6,10 @@ use_modular_headers!
 flutter_application_path = File.expand_path('..', __dir__)
 eval(File.read(File.join(flutter_application_path, '.flutter-plugins-dependencies')))
 
-flutter_version_output = `flutter --version --machine`
-flutter_root_match = flutter_version_output.match(/"flutterRoot":"([^"]+)"/)
-flutter_root = flutter_root_match ? flutter_root_match[1] : nil
+flutter_root = ENV['FLUTTER_ROOT']
 
 if flutter_root.nil?
-  raise "Unable to determine flutterRoot from flutter --version --machine"
+  raise "Unable to determine flutterRoot from ENV['FLUTTER_ROOT']"
 end
 
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
@@ -19,7 +17,6 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 target 'Runner' do
   flutter_ios_podfile_setup
 
-  # Flutter + Firebase + Swift compatibility
   use_frameworks! :linkage => :static
   use_modular_headers!
 
@@ -30,12 +27,6 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-    end
-  end
-
-  # Disable "use_frameworks!" warning from some pods like GoogleMLKit
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
       config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
     end
   end
