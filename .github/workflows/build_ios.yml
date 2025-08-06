@@ -11,36 +11,55 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      # 1️⃣ سحب السورس من الريبو
       - name: Checkout source
         uses: actions/checkout@v4
 
+      # 2️⃣ تثبيت Flutter
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.1'
           channel: 'stable'
 
+      # 3️⃣ تثبيت CocoaPods
       - name: Install CocoaPods
         run: sudo gem install cocoapods
 
+      # 4️⃣ Flutter clean & packages
       - name: Flutter clean & get packages
         run: |
           flutter clean
           flutter pub get
+          flutter precache
 
+      # 5️⃣ تهيئة iOS و إعادة إنشاء Podfile
       - name: Set up iOS dependencies
         run: |
           cd ios
+          rm -rf Podfile Podfile.lock Pods
+          pod init
+          echo "platform :ios, '12.0'" > Podfile
+          echo "use_frameworks!" >> Podfile
+          echo "use_modular_headers!" >> Podfile
+          echo "" >> Podfile
+          echo "target 'Runner' do" >> Podfile
+          echo "  flutter_application_path = '../'" >> Podfile
+          echo "  eval(File.read(File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')), binding)" >> Podfile
+          echo "end" >> Podfile
           pod install --repo-update
           cd ..
 
-      - name: Prebuild iOS to link Flutter.framework
+      # 6️⃣ Build debug مرة لربط Flutter.framework
+      - name: Prebuild iOS (Debug)
         run: flutter build ios --debug --no-codesign
 
-      - name: Build iOS Release (no code sign)
+      # 7️⃣ Build release بدون توقيع
+      - name: Build iOS Release (No Code Sign)
         run: flutter build ios --release --no-codesign
 
-      - name: Archive app manually to avoid code signing
+      # 8️⃣ أرشفة المشروع يدويًا
+      - name: Archive app (No Code Sign)
         run: |
           xcodebuild \
             -workspace ios/Runner.xcworkspace \
@@ -50,7 +69,30 @@ jobs:
             -archivePath build/ios/archive/Runner.xcarchive \
             archive CODE_SIGNING_ALLOWED=NO
 
-      - name: Export .ipa file manually
+      # 9️⃣ إنشاء ExportOptions.plist لو مش موجود
+      - name: Create ExportOptions.plist
+        run: |
+          cat <<EOF > ios/ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>ad-hoc</string>
+            <key>compileBitcode</key>
+            <false/>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>teamID</key>
+            <string></string>
+          </dict>
+          </plist>
+          EOF
+
+      # 🔟 تصدير ipa يدويًا
+      - name: Export .ipa file
         run: |
           xcodebuild -exportArchive \
             -archivePath build/ios/archive/Runner.xcarchive \
@@ -58,8 +100,9 @@ jobs:
             -exportPath build/ios/ipa \
             CODE_SIGNING_ALLOWED=NO
 
+      # 1️⃣1️⃣ رفع الـ ipa كـ Artifact
       - name: Upload iOS IPA Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-release-ipa
-          path: build/ios/ipa
+          path: build/ios/ipa/*.ipa
