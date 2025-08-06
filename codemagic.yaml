@@ -11,25 +11,24 @@ workflows:
         - $HOME/.pub-cache
         - ios/Pods
     scripts:
-      # 🔹 Pre-build setup
-      - name: Pre-build setup
+      - name: 🔹 Pre-build setup
         script: |
           flutter clean
           flutter pub get
           flutter precache
-          flutter build ios --simulator
 
-      # 🔹 Install CocoaPods after generating podhelper.rb
-      - name: Install CocoaPods
+      - name: 🔹 Install CocoaPods
         script: |
           cd ios
           pod install --repo-update
           cd ..
 
-      # 🔹 Build iOS (no code sign)
-      - name: Build iOS App
-        script: |
-          flutter build ios --release --no-codesign
+      # ✅ اختياري: ممكن تعمل build للـ simulator لو محتاج تجهز podhelper
+      # - name: Build for simulator
+      #   script: flutter build ios --simulator
+
+      - name: 🔹 Build iOS App (no code sign)
+        script: flutter build ios --release --no-codesign
 
     artifacts:
       - build/ios/ipa/*.ipa
