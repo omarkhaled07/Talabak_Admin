@@ -8,8 +8,8 @@ flutter_application_path = File.expand_path('..', __dir__)
 flutter_root = `which flutter`.strip
 flutter_root = File.expand_path("../..", flutter_root)
 
-flutter_application_path = File.expand_path('..', __dir__)
-load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
+flutter_root = `flutter --version --machine`.match(/\"flutterRoot\"\s*:\s*\"([^\"]+)\"/)[1]
+load File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb')
 
 target 'Runner' do
   flutter_ios_podfile_setup

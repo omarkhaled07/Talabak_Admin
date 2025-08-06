@@ -11,24 +11,22 @@ workflows:
         - $HOME/.pub-cache
         - ios/Pods
     scripts:
-      # تنظيف المشروع قبل البناء
-      - name: Clean Project
+      # 🔹 Pre-build setup
+      - name: Pre-build setup
         script: |
           flutter clean
-          rm -rf ios/Pods ios/Podfile.lock
+          flutter pub get
+          flutter precache
+          flutter build ios --simulator
 
-      # تثبيت باكجات Dart
-      - name: Get Flutter Packages
-        script: flutter pub get
-
-      # تثبيت Pods
+      # 🔹 Install CocoaPods after generating podhelper.rb
       - name: Install CocoaPods
         script: |
           cd ios
           pod install --repo-update
           cd ..
 
-      # بناء iOS (بدون توقيع كود)
+      # 🔹 Build iOS (no code sign)
       - name: Build iOS App
         script: |
           flutter build ios --release --no-codesign
