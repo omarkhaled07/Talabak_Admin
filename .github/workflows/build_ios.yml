@@ -17,29 +17,49 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.8'
+          flutter-version: '3.22.1'
           channel: 'stable'
 
       - name: Install CocoaPods
-        run: |
-          sudo gem install cocoapods
+        run: sudo gem install cocoapods
 
       - name: Flutter clean & get packages
         run: |
           flutter clean
           flutter pub get
 
-      - name: Setup iOS pods
+      - name: Set up iOS dependencies
         run: |
           cd ios
           pod install --repo-update
           cd ..
 
+      - name: Prebuild iOS to link Flutter.framework
+        run: flutter build ios --debug --no-codesign
+
       - name: Build iOS Release (no code sign)
         run: flutter build ios --release --no-codesign
 
-      - name: Upload iOS build artifact
+      - name: Archive app manually to avoid code signing
+        run: |
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            archive CODE_SIGNING_ALLOWED=NO
+
+      - name: Export .ipa file manually
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath build/ios/ipa \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload iOS IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-release-app
-          path: build/ios/iphoneos/Runner.app
+          name: ios-release-ipa
+          path: build/ios/ipa
