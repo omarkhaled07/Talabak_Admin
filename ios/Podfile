@@ -1,15 +1,20 @@
 platform :ios, '14.0'
 
-use_frameworks! :linkage => :dynamic
+use_frameworks! :linkage => :static
 use_modular_headers!
 
 flutter_application_path = File.expand_path('..', __dir__)
-require File.join(flutter_application_path, 'packages', 'flutter_tools', 'bin', 'podhelper')
+require File.expand_path(File.join(flutter_application_path, '.flutter-plugins-dependencies'))
+
+# المسار الصحيح للـ podhelper في Codemagic
+flutter_root = `which flutter`.strip
+flutter_root = File.expand_path("../..", flutter_root)
+
+load File.join(flutter_root, "packages/flutter_tools/bin/podhelper.rb")
 
 target 'Runner' do
   flutter_ios_podfile_setup
 
-  # Flutter pods
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
