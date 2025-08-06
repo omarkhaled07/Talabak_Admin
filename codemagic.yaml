@@ -12,42 +12,32 @@ workflows:
         - ios/Pods
 
     scripts:
-      # 1️⃣ تنظيف المشروع وتحميل الباكجات
-      - name: 🔹 Pre-build setup
+      - name: 🔹 Clean & Get Dependencies
         script: |
           flutter clean
           flutter pub get
           flutter precache
 
-      # 2️⃣ تجهيز Podfile أوتوماتيك لو ناقص
-      - name: 🔹 Ensure Podfile exists
+      - name: 🔹 Re-generate Podfile
         script: |
           cd ios
-          if [ ! -f Podfile ]; then
-            echo "Podfile not found. Creating a default Podfile..."
-            cat <<EOF > Podfile
-            platform :ios, '12.0'
-            use_frameworks!
-            use_modular_headers!
-
-            target 'Runner' do
-              flutter_application_path = '../'
-              eval(File.read(File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')), binding)
-            end
-          EOF
-          fi
-          cd ..
-
-# 3️⃣ تثبيت الـ CocoaPods بعد تنظيف القديم
-      - name: 🔹 Install CocoaPods
-        script: |
-          cd ios
-          rm -rf Pods Podfile.lock
+          rm -rf Podfile Podfile.lock Pods
+          flutter pub get
+          flutter precache
+          pod init
+          # إعادة إنشاء Podfile من flutter podhelper
+          echo "platform :ios, '12.0'" > Podfile
+          echo "use_frameworks!" >> Podfile
+          echo "use_modular_headers!" >> Podfile
+          echo "" >> Podfile
+          echo "target 'Runner' do" >> Podfile
+          echo "  flutter_application_path = '../'" >> Podfile
+          echo "  eval(File.read(File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')), binding)" >> Podfile
+          echo "end" >> Podfile
           pod install --repo-update
           cd ..
 
-      # 4️⃣ بناء التطبيق iOS (Release بدون توقيع كود)
-      - name: 🔹 Build iOS App (no code sign)
+      - name: 🔹 Build iOS App (No Code Sign)
         script: |
           flutter build ios --release --no-codesign
 
