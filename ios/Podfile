@@ -1,27 +1,39 @@
+# Podfile for Flutter project
+
 platform :ios, '14.0'
 
 use_frameworks! :linkage => :static
 use_modular_headers!
 
-flutter_application_path = File.expand_path('..', __dir__)
-# المسار الصحيح للـ podhelper
-flutter_root = `which flutter`.strip
-flutter_root = File.expand_path("../..", flutter_root)
+# Prevent Cocoapods from embedding duplicated frameworks
+install! 'cocoapods', :disable_input_output_paths => true
 
-flutter_root = `flutter --version --machine`.match(/\"flutterRoot\"\s*:\s*\"([^\"]+)\"/)[1]
-load File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb')
+flutter_application_path = '../'
+eval(File.read(File.join(flutter_application_path, '.flutter-plugins-dependencies')))
 
 target 'Runner' do
-  flutter_ios_podfile_setup
+  use_frameworks! :linkage => :static
+  use_modular_headers!
 
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  flutter_application_path = '../'
+  eval(File.read(File.join(flutter_application_path, '.flutter-plugins')))
+
+  # Pods for Runner
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
+
+  # حل مشكلة Flutter.h
+  pod 'Flutter', :path => File.join(flutter_application_path, 'ios', 'Flutter')
+
+  # تفعيل جميع الـ Pods الخاصة بالإضافات
+  use_flipper!({ 'Flipper-Folly' => '2.6.7' }) # ممكن تشيلها لو مش محتاج Debug
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
-      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
     end
   end
 end
