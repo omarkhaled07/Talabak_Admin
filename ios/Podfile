@@ -1,16 +1,14 @@
 platform :ios, '13.0'
+
 use_frameworks!
 use_modular_headers!
 
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root = File.expand_path('..', __dir__))
+
+flutter_ios_podfile_setup
+
 target 'Runner' do
-  pod 'cloud_firestore', :path => '.symlinks/plugins/cloud_firestore/ios'
-  pod 'firebase_core', :path => '.symlinks/plugins/firebase_core/ios'
-  pod 'firebase_auth', :path => '.symlinks/plugins/firebase_auth/ios'
-  pod 'firebase_messaging', :path => '.symlinks/plugins/firebase_messaging/ios'
-  pod 'google_maps_flutter_ios', :path => '.symlinks/plugins/google_maps_flutter_ios/ios'
-  pod 'geolocator_apple', :path => '.symlinks/plugins/geolocator_apple/ios'
-  pod 'geocoding_ios', :path => '.symlinks/plugins/geocoding_ios/ios'
-  pod 'onesignal_flutter', :path => '.symlinks/plugins/onesignal_flutter/ios'
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
 post_install do |installer|
