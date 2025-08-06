@@ -17,23 +17,20 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.8' # نفس النسخة اللي عندك
+          flutter-version: '3.32.8'
           channel: 'stable'
 
-      - name: Flutter clean
-        run: flutter clean
+      - name: Flutter clean & get packages
+        run: |
+          flutter clean
+          flutter pub get
 
-      - name: Clean and Reinstall iOS Pods
+      - name: Setup CocoaPods
         run: |
           cd ios
-          rm -rf Pods Podfile.lock
-          pod deintegrate
-          cd ..
-          flutter pub get
-          cd ios
-          flutter pub get
+          pod repo update
           pod install --repo-update --verbose
           cd ..
 
-      - name: Build iOS
+      - name: Build iOS Release (No Codesign)
         run: flutter build ios --release --no-codesign

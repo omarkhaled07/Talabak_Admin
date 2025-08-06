@@ -3,17 +3,22 @@ platform :ios, '13.0'
 use_frameworks!
 use_modular_headers!
 
+# flutter_root = Path to flutter SDK (auto-detected by flutter tool)
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root = File.expand_path('..', __dir__))
 
-flutter_ios_podfile_setup
-
 target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_ios_podfile_setup
+
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
+      # ضمان إن كل الـ Pods تستخدم iOS 13.0
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
     end
   end
