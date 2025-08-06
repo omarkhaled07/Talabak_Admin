@@ -1,27 +1,8 @@
 workflows:
-  ios-build:
-    name: iOS build for Flutter (no codesign)
-    environment:
-      flutter: stable
-      xcode: latest
+  ios-workflow:
+    name: iOS Build Workflow
     scripts:
-      - name: Clean and get packages
-        script: |
-          flutter clean
-          flutter pub get
-      - name: Remove pods and re-install
-        script: |
-          cd ios
-          rm -rf Pods Podfile.lock .symlinks
-          pod install
-          cd ..
-      - name: Build IPA
-        script: |
-          flutter build ios --release --no-codesign
+      - flutter pub get
+      - flutter build ios --release --no-codesign
     artifacts:
-      - build/ios/iphoneos/Runner.app
-      - build/ios/iphoneos/*.ipa
-    publishing:
-      email:
-        recipients:
-          - ok3334752@gmail.com
+      - build/ios/ipa/*.ipa
