@@ -11,55 +11,45 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # 1️⃣ سحب السورس من الريبو
+      # 1️⃣ Checkout المصدر
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # 2️⃣ تثبيت Flutter
+      # 2️⃣ تثبيت Flutter أحدث إصدار متوافق مع Dart 3.7.x
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.27.1'
           channel: 'stable'
 
-      # 3️⃣ تثبيت CocoaPods
-      - name: Install CocoaPods
-        run: sudo gem install cocoapods
+      # 3️⃣ تعطيل التحليلات عشان ما توقفش البيلد
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
 
-      # 4️⃣ Flutter clean & packages
+      # 4️⃣ تحديث الباكجات
       - name: Flutter clean & get packages
         run: |
           flutter clean
           flutter pub get
-          flutter precache
 
-      # 5️⃣ تهيئة iOS و إعادة إنشاء Podfile
-      - name: Set up iOS dependencies
+      # 5️⃣ تثبيت CocoaPods
+      - name: Install CocoaPods
         run: |
+          sudo gem install cocoapods
           cd ios
-          rm -rf Podfile Podfile.lock Pods
-          pod init
-          echo "platform :ios, '12.0'" > Podfile
-          echo "use_frameworks!" >> Podfile
-          echo "use_modular_headers!" >> Podfile
-          echo "" >> Podfile
-          echo "target 'Runner' do" >> Podfile
-          echo "  flutter_application_path = '../'" >> Podfile
-          echo "  eval(File.read(File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')), binding)" >> Podfile
-          echo "end" >> Podfile
           pod install --repo-update
           cd ..
 
-      # 6️⃣ Build debug مرة لربط Flutter.framework
-      - name: Prebuild iOS (Debug)
+      # 6️⃣ Prebuild لربط Flutter.framework
+      - name: Prebuild iOS
         run: flutter build ios --debug --no-codesign
 
-      # 7️⃣ Build release بدون توقيع
-      - name: Build iOS Release (No Code Sign)
+      # 7️⃣ Build iOS Release بدون توقيع
+      - name: Build iOS Release (no code sign)
         run: flutter build ios --release --no-codesign
 
-      # 8️⃣ أرشفة المشروع يدويًا
-      - name: Archive app (No Code Sign)
+      # 8️⃣ أرشفة التطبيق يدويًا
+      - name: Archive app manually
         run: |
           xcodebuild \
             -workspace ios/Runner.xcworkspace \
@@ -69,29 +59,7 @@ jobs:
             -archivePath build/ios/archive/Runner.xcarchive \
             archive CODE_SIGNING_ALLOWED=NO
 
-      # 9️⃣ إنشاء ExportOptions.plist لو مش موجود
-      - name: Create ExportOptions.plist
-        run: |
-          cat <<EOF > ios/ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>ad-hoc</string>
-            <key>compileBitcode</key>
-            <false/>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>stripSwiftSymbols</key>
-            <true/>
-            <key>teamID</key>
-            <string></string>
-          </dict>
-          </plist>
-          EOF
-
-      # 🔟 تصدير ipa يدويًا
+      # 9️⃣ تصدير ملف IPA يدويًا
       - name: Export .ipa file
         run: |
           xcodebuild -exportArchive \
@@ -100,7 +68,7 @@ jobs:
             -exportPath build/ios/ipa \
             CODE_SIGNING_ALLOWED=NO
 
-      # 1️⃣1️⃣ رفع الـ ipa كـ Artifact
+      # 🔟 رفع ملف IPA كـ Artifact
       - name: Upload iOS IPA Artifact
         uses: actions/upload-artifact@v4
         with:
