@@ -20,22 +20,26 @@ jobs:
           flutter-version: '3.32.8'
           channel: 'stable'
 
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods
+
       - name: Flutter clean & get packages
         run: |
           flutter clean
           flutter pub get
 
-      - name: Setup CocoaPods
+      - name: Setup iOS pods
         run: |
           cd ios
-          pod install --repo-update --verbose
+          pod install --repo-update
           cd ..
 
-      - name: Build iOS Release (No Codesign)
+      - name: Build iOS Release (no code sign)
         run: flutter build ios --release --no-codesign
 
-      - name: Upload artifacts
+      - name: Upload iOS build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-release
+          name: ios-release-app
           path: build/ios/iphoneos/Runner.app
