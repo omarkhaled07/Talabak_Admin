@@ -1,42 +1,56 @@
 name: Build iOS IPA
-on: push
+
+on:
+  push:
+    branches:
+      - main  # أو غيرها حسب فرعك
 
 jobs:
-  build:
-    runs-on: macOS-latest
-    steps:
-      - uses: actions/checkout@v4
+  build-ios:
+    runs-on: macos-latest
 
+    steps:
+      # 1️⃣ Checkout Source Code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2️⃣ Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.32.8'
+          flutter-version: '3.32.8' # تأكد من نفس نسخة مشروعك
 
+      # 3️⃣ Install CocoaPods
       - name: Install CocoaPods
         run: |
           sudo gem uninstall cocoapods -a -x --force
           sudo gem install cocoapods -v 1.15.2
           pod setup
 
-      - name: Clean and prepare
+      # 4️⃣ Flutter Clean & Pub Get
+      - name: Prepare Flutter Project
         run: |
           flutter clean
-          rm -rf ios/Pods ios/Podfile.lock
           flutter pub get
 
-      - name: Fix Firebase dependencies
+      # 5️⃣ iOS Pods Setup
+      - name: Install iOS Pods
         run: |
           cd ios
+          rm -rf Pods Podfile.lock .symlinks
           pod deintegrate
-          pod repo update
+          flutter pub get
           pod install --repo-update --verbose
           cd ..
 
-      - name: Build IPA
+      # 6️⃣ Build iOS IPA (No Codesign)
+      - name: Build iOS IPA
         run: flutter build ipa --release --no-codesign
 
-      - uses: actions/upload-artifact@v4
+      # 7️⃣ Upload IPA Artifact
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
         with:
           name: app-ipa
           path: build/ios/ipa/*.ipa
