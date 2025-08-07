@@ -17,8 +17,13 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.2' # You can adjust this version
+          flutter-version: '3.7.0' # Ensure this is compatible with your project's Dart SDK requirement
           channel: 'stable'
+
+      - name: Upgrade Flutter and Dart
+        run: |
+          flutter upgrade
+          flutter doctor
 
       - name: Disable Flutter analytics
         run: flutter config --no-analytics
@@ -54,8 +59,13 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.2' # You can adjust this version
+          flutter-version: '3.7.0' # Ensure this is compatible with your project's Dart SDK requirement
           channel: 'stable'
+
+      - name: Upgrade Flutter and Dart
+        run: |
+          flutter upgrade
+          flutter doctor
 
       - name: Disable Flutter analytics
         run: flutter config --no-analytics
@@ -84,8 +94,13 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.2' # You can adjust this version
+          flutter-version: '3.7.0' # Ensure this is compatible with your project's Dart SDK requirement
           channel: 'stable'
+
+      - name: Upgrade Flutter and Dart
+        run: |
+          flutter upgrade
+          flutter doctor
 
       - name: Disable Flutter analytics
         run: flutter config --no-analytics
@@ -106,3 +121,5 @@ jobs:
         with:
           name: windows-release-exe
           path: build/windows/x64/runner/Release/*.exe
+
+
