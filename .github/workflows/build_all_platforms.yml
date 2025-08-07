@@ -17,7 +17,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.0' # Ensure this is compatible with your project's Dart SDK requirement
+          flutter-version: '3.7.0'
           channel: 'stable'
 
       - name: Upgrade Flutter and Dart
@@ -33,15 +33,24 @@ jobs:
           flutter clean
           flutter pub get
 
-      - name: Install CocoaPods
+      - name: Install CocoaPods and setup iOS dependencies
         run: |
           sudo gem install cocoapods
           cd ios
+          rm -f Podfile.lock
           pod install --repo-update
           cd ..
 
       - name: Build iOS Release
         run: flutter build ios --release --no-codesign
+
+      - name: Create iOS Archive
+        run: |
+          mkdir -p build/ios/ipa
+          cp -r build/ios/iphoneos/Runner.app build/ios/ipa/
+          cd build/ios/ipa
+          zip -r Runner.ipa Runner.app
+          cd ../../..
 
       - name: Upload iOS IPA Artifact
         uses: actions/upload-artifact@v4
@@ -59,7 +68,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.0' # Ensure this is compatible with your project's Dart SDK requirement
+          flutter-version: '3.7.0'
           channel: 'stable'
 
       - name: Upgrade Flutter and Dart
@@ -94,7 +103,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.0' # Ensure this is compatible with your project's Dart SDK requirement
+          flutter-version: '3.7.0'
           channel: 'stable'
 
       - name: Upgrade Flutter and Dart
@@ -116,10 +125,15 @@ jobs:
       - name: Build Windows Executable
         run: flutter build windows --release
 
+      - name: Create Windows Archive
+        run: |
+          cd build/windows/x64/runner/Release
+          7z a -tzip ../../../../../windows-release.zip *
+          cd ../../../../../
+
       - name: Upload Windows Executable Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-release-exe
-          path: build/windows/x64/runner/Release/*.exe
-
+          path: windows-release.zip
 
