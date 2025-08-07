@@ -17,7 +17,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1' # You can adjust this version
+          flutter-version: '3.7.2' # You can adjust this version
           channel: 'stable'
 
       - name: Disable Flutter analytics
@@ -54,7 +54,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1' # You can adjust this version
+          flutter-version: '3.7.2' # You can adjust this version
           channel: 'stable'
 
       - name: Disable Flutter analytics
@@ -84,7 +84,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1' # You can adjust this version
+          flutter-version: '3.7.2' # You can adjust this version
           channel: 'stable'
 
       - name: Disable Flutter analytics
