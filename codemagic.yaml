@@ -1,36 +1,24 @@
 workflows:
-  ios-workflow:
+  ios-build-workflow:
     name: iOS Build Workflow
-    max_build_duration: 60
+    instance_type: mac_mini_m1 # استخدم أحدث الأجهزة المتاحة لأداء أفضل
     environment:
+      flutter: stable
       xcode: latest
       cocoapods: default
-      flutter: stable
-    cache:
-      cache_paths:
-        - $HOME/.pub-cache
-        - ios/Pods
-
     scripts:
-      - name: 🔹 Clean & Get Dependencies
+      - name: Clean Flutter project
         script: |
           flutter clean
-          flutter pub get
-
-      - name: 🔹 Regenerate Podfile and Install Pods
+      - name: Get Flutter packages
         script: |
-          rm -f ios/Podfile
           flutter pub get
+      - name: Install pods
+        script: |
           cd ios
-          pod install --repo-update
-          cd ..
-
-      - name: 🔹 Build iOS App (No Code Sign)
+          pod install
+      - name: Build iOS application
         script: |
           flutter build ios --release --no-codesign
-
     artifacts:
       - build/ios/ipa/*.ipa
-      - build/ios/archive/*.xcarchive
-      - build/ios/iphoneos/*.app
-
