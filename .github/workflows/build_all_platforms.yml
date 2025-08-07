@@ -36,10 +36,10 @@ jobs:
       - name: Install CocoaPods and setup iOS dependencies
         run: |
           sudo gem install cocoapods
-          flutter pub get # Ensure this runs at the project root
+          flutter pub get
           cd ios
           rm -f Podfile.lock
-          rm -f Flutter/Generated.xcconfig # Remove old generated config
+          rm -f Flutter/Generated.xcconfig
           pod install --repo-update
           cd ..
 
@@ -141,3 +141,46 @@ jobs:
           name: windows-release-exe
           path: windows-release.zip
 
+  build_web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.0'
+          channel: 'stable'
+
+      - name: Upgrade Flutter and Dart
+        run: |
+          flutter upgrade
+          flutter doctor
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
+      - name: Flutter clean & get packages
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: Enable web
+        run: flutter config --enable-web
+
+      - name: Build Web Release
+        run: flutter build web
+
+      - name: Create Web Archive
+        run: |
+          cd build/web
+          zip -r ../../web-release.zip .
+          cd ../..
+
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: web-release.zip
