@@ -1,6 +1,6 @@
 # Podfile for Flutter project
 
-platform :ios, '14.0'
+platform :ios, '13.0'
 
 use_frameworks! :linkage => :static
 use_modular_headers!
@@ -19,14 +19,18 @@ target 'Runner' do
   eval(File.read(File.join(flutter_application_path, '.flutter-plugins')))
 
   # Pods for Runner
-  pod 'Firebase/Core'
-  pod 'Firebase/Messaging'
+  # Firebase pods are typically managed by Flutter's plugin system.
+  # If you explicitly need specific Firebase versions, uncomment and manage them here.
+  # Otherwise, let Flutter handle them via .flutter-plugins and .flutter-plugins-dependencies.
+  # pod 'Firebase/Core'
+  # pod 'Firebase/Messaging'
 
-  # حل مشكلة Flutter.h
-  pod 'Flutter', :path => File.join(flutter_application_path, 'ios', 'Flutter')
+  # This line is usually handled by Flutter's podhelper.rb or .flutter-plugins
+  # pod 'Flutter', :path => File.join(flutter_application_path, 'ios', 'Flutter')
 
-  # تفعيل جميع الـ Pods الخاصة بالإضافات
-  use_flipper!({ 'Flipper-Folly' => '2.6.7' }) # ممكن تشيلها لو مش محتاج Debug
+  # Flipper is a debugging tool. If you don't need it for release builds, it's best to remove it.
+  # If you need it, ensure its version is compatible with your project's dependencies.
+  # use_flipper!({ 'Flipper-Folly' => '2.6.7' }) # ممكن تشيلها لو مش محتاج Debug
 end
 
 post_install do |installer|
@@ -37,3 +41,5 @@ post_install do |installer|
     end
   end
 end
+
+
