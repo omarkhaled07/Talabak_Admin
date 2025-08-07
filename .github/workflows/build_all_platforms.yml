@@ -36,8 +36,10 @@ jobs:
       - name: Install CocoaPods and setup iOS dependencies
         run: |
           sudo gem install cocoapods
+          flutter pub get # Ensure this runs at the project root
           cd ios
           rm -f Podfile.lock
+          rm -f Flutter/Generated.xcconfig # Remove old generated config
           pod install --repo-update
           cd ..
 
@@ -127,9 +129,11 @@ jobs:
 
       - name: Create Windows Archive
         run: |
-          cd build/windows/x64/runner/Release
-          7z a -tzip ../../../../../windows-release.zip *
-          cd ../../../../../
+          mkdir full_build
+          xcopy /E /I /Y build\windows\x64\runner\Release full_build
+          xcopy /E /I /Y build\windows\runner\assets full_build\data
+          xcopy /E /I /Y build\flutter_assets full_build\flutter_assets
+          7z a -tzip windows-release.zip .\full_build\*
 
       - name: Upload Windows Executable Artifact
         uses: actions/upload-artifact@v4
