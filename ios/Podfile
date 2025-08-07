@@ -1,25 +1,25 @@
-# Podfile for Flutter project
-
+# Uncomment this line to define a global platform for your project
 platform :ios, '14.0'
 
-use_frameworks! :linkage => :static
-use_modular_headers!
-
+# CocoaPods analytics
+# For more information, see: https://guides.cocoapods.org/syntax/podfile.html#install
 install! 'cocoapods', :disable_input_output_paths => true
 
-flutter_application_path = File.expand_path('..', __dir__)
-dependencies_file = File.join(flutter_application_path, '.flutter-plugins-dependencies')
-eval(File.read(dependencies_file)) if File.exist?(dependencies_file)
+# This is the standard Flutter Podfile structure. It includes the Flutter module
+# and all its plugins automatically.
+flutter_application_path = File.expand_path('../', File.dirname(__FILE__ ))
+load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
 
 target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
-  flutter_application_path = File.expand_path('..', __dir__)
-  plugins_file = File.join(flutter_application_path, '.flutter-plugins')
-  eval(File.read(plugins_file)) if File.exist?(plugins_file)
+  # Pods for Flutter plugins
+  flutter_additional_ios_build_settings(self)
 
-  # Firebase pods – let Flutter handle them
+  # Add any other pods your project specifically needs here, e.g.:
+  # pod 'GoogleMaps'
+
 end
 
 post_install do |installer|
