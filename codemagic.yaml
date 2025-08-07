@@ -1,24 +1,42 @@
+# yaml-language-server: $schema=https://json.schemastore.org/codemagic.yaml
+
 workflows:
   ios-build-workflow:
     name: iOS Build Workflow
-    instance_type: mac_mini_m1 # استخدم أحدث الأجهزة المتاحة لأداء أفضل
+
+    # 1. هذا هو أهم سطر لحل المشكلة
+    # استخدم أحدث جهاز بناء متاح لضمان بيئة عمل حديثة
+    instance_type: mac_mini_m2
+
+    # 2. حدد نسخ البرامج بوضوح
     environment:
-      flutter: stable
-      xcode: latest
-      cocoapods: default
+      flutter: stable     # أو النسخة التي تستخدمها في مشروعك
+      xcode: latest       # مهم جداً للحصول على أدوات بناء حديثة
+      cocoapods: default  # دع Codemagic يختار النسخة المتوافقة مع Xcode
+
+    # 3. السكربتات (Scripts ) بالترتيب الصحيح
     scripts:
-      - name: Clean Flutter project
+      - name: 1. Set up local properties
         script: |
-          flutter clean
-      - name: Get Flutter packages
+          set -e # توقف فوراً عند حدوث أي خطأ
+          echo "FLUTTER_ROOT=$FLUTTER_ROOT" > "$CM_BUILD_DIR/local.properties"
+
+      - name: 2. Get Flutter packages
         script: |
+          set -e
           flutter pub get
-      - name: Install pods
+
+      - name: 3. Install pods
         script: |
+          set -e
           cd ios
-          pod install
-      - name: Build iOS application
+          pod install --repo-update
+
+      - name: 4. Build iOS application
         script: |
+          set -e
           flutter build ios --release --no-codesign
+
+    # 4. تحديد الملفات الناتجة
     artifacts:
       - build/ios/ipa/*.ipa
