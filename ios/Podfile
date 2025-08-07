@@ -1,25 +1,36 @@
-# Uncomment this line to define a global platform for your project
+# Podfile for Flutter project
+
 platform :ios, '14.0'
 
-# CocoaPods analytics
-# For more information, see: https://guides.cocoapods.org/syntax/podfile.html#install
+use_frameworks! :linkage => :static
+use_modular_headers!
+
+# Prevent Cocoapods from embedding duplicated frameworks
 install! 'cocoapods', :disable_input_output_paths => true
 
-# This is the standard Flutter Podfile structure. It includes the Flutter module
-# and all its plugins automatically.
-flutter_application_path = File.expand_path('../', File.dirname(__FILE__ ))
-# load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
+flutter_application_path = '../'
+eval(File.read(File.join(flutter_application_path, '.flutter-plugins-dependencies')))
 
 target 'Runner' do
   use_frameworks! :linkage => :static
   use_modular_headers!
 
-  # Pods for Flutter plugins
-  flutter_additional_ios_build_settings(self)
+  flutter_application_path = '../'
+  eval(File.read(File.join(flutter_application_path, '.flutter-plugins')))
 
-  # Add any other pods your project specifically needs here, e.g.:
-  # pod 'GoogleMaps'
+  # Pods for Runner
+  # Firebase pods are typically managed by Flutter's plugin system.
+  # If you explicitly need specific Firebase versions, uncomment and manage them here.
+  # Otherwise, let Flutter handle them via .flutter-plugins and .flutter-plugins-dependencies.
+  # pod 'Firebase/Core'
+  # pod 'Firebase/Messaging'
 
+  # This line is usually handled by Flutter's podhelper.rb or .flutter-plugins
+  # pod 'Flutter', :path => File.join(flutter_application_path, 'ios', 'Flutter')
+
+  # Flipper is a debugging tool. If you don't need it for release builds, it's best to remove it.
+  # If you need it, ensure its version is compatible with your project's dependencies.
+  # use_flipper!({ 'Flipper-Folly' => '2.6.7' }) # ممكن تشيلها لو مش محتاج Debug
 end
 
 post_install do |installer|

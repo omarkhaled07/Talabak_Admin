@@ -1,46 +1,36 @@
-# yaml-language-server: $schema=https://json.schemastore.org/codemagic.yaml
-
 workflows:
-  ios-build-workflow:
+  ios-workflow:
     name: iOS Build Workflow
-
-    # 1. THIS IS THE MOST IMPORTANT FIX: Use a modern build machine.
-    # This ensures you get up-to-date versions of macOS, Xcode, and CocoaPods.
-    instance_type: mac_mini_m2 # or mac_mini_m1
-
-    # 2. Specify the latest stable software versions.
+    max_build_duration: 60
     environment:
-      flutter: stable     # Use the latest stable Flutter version
-      xcode: latest       # Use the latest Xcode version
-      cocoapods: default  # Let Codemagic pick the version compatible with Xcode
+      xcode: latest
+      cocoapods: default
+      flutter: stable
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
+        - ios/Pods
 
-    # 3. Define the build scripts in the correct order.
     scripts:
-      - name: 1. Clean Flutter project
+      - name: 🔹 Clean & Get Dependencies
         script: |
-          set -e # Exit immediately if a command fails
           flutter clean
-
-      - name: 2. Get Flutter packages
-        script: |
-          set -e
           flutter pub get
 
-      - name: 3. Clean and update CocoaPods
+      - name: 🔹 Regenerate Podfile and Install Pods
         script: |
-          set -e
+          rm -f ios/Podfile
+          flutter pub get
           cd ios
-          # This ensures a clean installation of pods
-          rm -rf Pods Podfile.lock
           pod install --repo-update
+          cd ..
 
-      - name: 4. Build iOS application
+      - name: 🔹 Build iOS App (No Code Sign)
         script: |
-          set -e
-          # Use --release for App Store builds or --debug for testing
           flutter build ios --release --no-codesign
 
-    # 4. Specify the output artifacts.
     artifacts:
       - build/ios/ipa/*.ipa
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+      - build/ios/archive/*.xcarchive
+      - build/ios/iphoneos/*.app
+
