@@ -16,24 +16,12 @@ workflows:
         script: |
           flutter clean
           flutter pub get
-          flutter precache
 
-      - name: 🔹 Re-generate Podfile
+      - name: 🔹 Regenerate Podfile and Install Pods
         script: |
-          cd ios
-          rm -rf Podfile Podfile.lock Pods
+          rm -f ios/Podfile
           flutter pub get
-          flutter precache
-          pod init
-          # إعادة إنشاء Podfile من flutter podhelper
-          echo "platform :ios, '12.0'" > Podfile
-          echo "use_frameworks!" >> Podfile
-          echo "use_modular_headers!" >> Podfile
-          echo "" >> Podfile
-          echo "target 'Runner' do" >> Podfile
-          echo "  flutter_application_path = '../'" >> Podfile
-          echo "  eval(File.read(File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')), binding)" >> Podfile
-          echo "end" >> Podfile
+          cd ios
           pod install --repo-update
           cd ..
 
@@ -45,3 +33,4 @@ workflows:
       - build/ios/ipa/*.ipa
       - build/ios/archive/*.xcarchive
       - build/ios/iphoneos/*.app
+
