@@ -4,39 +4,43 @@ workflows:
   ios-build-workflow:
     name: iOS Build Workflow
 
-    # 1. هذا هو أهم سطر لحل المشكلة
-    # استخدم أحدث جهاز بناء متاح لضمان بيئة عمل حديثة
-    instance_type: mac_mini_m2
+    # 1. THIS IS THE MOST IMPORTANT FIX: Use a modern build machine.
+    # This ensures you get up-to-date versions of macOS, Xcode, and CocoaPods.
+    instance_type: mac_mini_m2 # or mac_mini_m1
 
-    # 2. حدد نسخ البرامج بوضوح
+    # 2. Specify the latest stable software versions.
     environment:
-      flutter: stable     # أو النسخة التي تستخدمها في مشروعك
-      xcode: latest       # مهم جداً للحصول على أدوات بناء حديثة
-      cocoapods: default  # دع Codemagic يختار النسخة المتوافقة مع Xcode
+      flutter: stable     # Use the latest stable Flutter version
+      xcode: latest       # Use the latest Xcode version
+      cocoapods: default  # Let Codemagic pick the version compatible with Xcode
 
-    # 3. السكربتات (Scripts ) بالترتيب الصحيح
+    # 3. Define the build scripts in the correct order.
     scripts:
-      - name: 1. Set up local properties
+      - name: 1. Clean Flutter project
         script: |
-          set -e # توقف فوراً عند حدوث أي خطأ
-          echo "FLUTTER_ROOT=$FLUTTER_ROOT" > "$CM_BUILD_DIR/local.properties"
+          set -e # Exit immediately if a command fails
+          flutter clean
 
       - name: 2. Get Flutter packages
         script: |
           set -e
           flutter pub get
 
-      - name: 3. Install pods
+      - name: 3. Clean and update CocoaPods
         script: |
           set -e
           cd ios
+          # This ensures a clean installation of pods
+          rm -rf Pods Podfile.lock
           pod install --repo-update
 
       - name: 4. Build iOS application
         script: |
           set -e
+          # Use --release for App Store builds or --debug for testing
           flutter build ios --release --no-codesign
 
-    # 4. تحديد الملفات الناتجة
+    # 4. Specify the output artifacts.
     artifacts:
       - build/ios/ipa/*.ipa
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
