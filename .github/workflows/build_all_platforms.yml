@@ -1,0 +1,108 @@
+name: Flutter Multi-Platform Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1' # You can adjust this version
+          channel: 'stable'
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
+      - name: Flutter clean & get packages
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Build iOS Release
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload iOS IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-ipa
+          path: build/ios/ipa/*.ipa
+
+  build_android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1' # You can adjust this version
+          channel: 'stable'
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
+      - name: Flutter clean & get packages
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: Build Android APK Release
+        run: flutter build apk --release
+
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk
+          path: build/app/outputs/flutter-apk/*.apk
+
+  build_windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1' # You can adjust this version
+          channel: 'stable'
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
+      - name: Flutter clean & get packages
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows Executable
+        run: flutter build windows --release
+
+      - name: Upload Windows Executable Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-exe
+          path: build/windows/x64/runner/Release/*.exe
