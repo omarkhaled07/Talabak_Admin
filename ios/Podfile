@@ -8,7 +8,7 @@ install! 'cocoapods', :disable_input_output_paths => true
 # This is the standard Flutter Podfile structure. It includes the Flutter module
 # and all its plugins automatically.
 flutter_application_path = File.expand_path('../', File.dirname(__FILE__ ))
-load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
+# load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
 
 target 'Runner' do
   use_frameworks! :linkage => :static
